@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Doadores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;700&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            background-image: url('img/doacao.webp');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: var(--cor-de-fundo);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header d-flex justify-content-end p-3">
+        <a href="login.html" class="header__login btn btn-primary">Login</a>
+    </header>
+
+    <section class="container d-flex flex-column align-items-center justify-content-center text-center py-5" style="min-height: 100vh;">
+        <div class="container__caixa bg-dark bg-opacity-75 rounded-3 shadow-lg p-4" style="max-width: 700px; width: 100%;">
+            <h1 class="container__titulo">Cadastro de Doadores</h1>
+            <form id="doadorForm" class="container__form text-start">
+                <input type="hidden" id="doadorId" />
+
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome:</label>
+                    <input type="text" id="nome" name="nome" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="cpfCnpj" class="form-label">CPF/CNPJ:</label>
+                    <input type="text" id="cpfCnpj" name="cpfCnpj" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="endereco" class="form-label">Endereço:</label>
+                    <input type="text" id="endereco" name="endereco" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="telefone" class="form-label">Telefone:</label>
+                    <input type="text" id="telefone" name="telefone" class="form-control" required>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">Salvar</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer class="rodape text-center py-4">
+        <p>App "Match do Bem", desenvolvido pela equipe Erivânia, Hemerson, Humberto e Isabel</p>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script>
+
+    Parse.initialize('winm9cbnUUSt37DOLHgvXRBdSbRLRyv4RXW7WvvD', 'jcrjxZKfxwXXqldjxT9SIG1tPUil7O0YzlUc70Dd');
+    Parse.serverURL = "https://parseapi.back4app.com/";
+
+    function sanitizeInput(input) {
+        const element = document.createElement('div');
+        element.innerText = input;
+        return element.innerHTML.trim();
+    }
+
+    function validarCpfCnpj(cpfCnpj) {
+        const cpfCnpjPattern = /^\d{11}$|^\d{14}$/;
+        return cpfCnpjPattern.test(cpfCnpj);
+    }
+
+    function validarEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
+
+    function validarTelefone(telefone) {
+        const telefonePattern = /^\(\d{2}\) \d{4,5}-\d{4}$/;
+        return telefonePattern.test(telefone);
+    }
+
+    async function criarDoador(event) {
+        event.preventDefault();
+
+        let nomeDoador = sanitizeInput(document.getElementById("nome").value);
+        let cpfCnpjDoador = sanitizeInput(document.getElementById("cpfCnpj").value);
+        let enderecoDoador = sanitizeInput(document.getElementById("endereco").value);
+        let emailDoador = sanitizeInput(document.getElementById("email").value);
+        let telefoneDoador = sanitizeInput(document.getElementById("telefone").value);
+
+        if (!validarCpfCnpj(cpfCnpjDoador)) {
+            alert("CPF/CNPJ inválido.");
+            return;
+        }
+
+        if (!validarEmail(emailDoador)) {
+            alert("E-mail inválido.");
+            return;
+        }
+
+        if (!validarTelefone(telefoneDoador)) {
+            alert("Telefone inválido. Use o formato (XX) XXXX-XXXX ou (XX) XXXXX-XXXX.");
+            return;
+        }
+
+        const Doador = Parse.Object.extend('Doador');
+        const myNewObject = new Doador();
+
+        myNewObject.set('nome', nomeDoador);
+        myNewObject.set('cpfCnpj', cpfCnpjDoador);
+        myNewObject.set('endereco', enderecoDoador);
+        myNewObject.set('email', emailDoador);
+        myNewObject.set('telefone', telefoneDoador);
+
+        try {
+            await myNewObject.save();
+            alert("Doador cadastrado com sucesso!");
+            resetForm();
+        } catch (error) {
+            console.error('Erro ao cadastrar Doador: ', error);
+            alert("Erro. Não foi possível salvar o doador.");
+        }
+    }
+
+    function resetForm() {
+        document.getElementById("doadorForm").reset();
+    }
+
+    document.getElementById("doadorForm").addEventListener("submit", criarDoador);
+    </script>
+</body>
+
+</html>
