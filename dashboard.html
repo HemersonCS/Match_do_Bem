@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gerenciamento de Dados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header class="header bg-dark text-white d-flex justify-content-between align-items-center p-3">
+        <h2 class="m-0">Dashboard</h2>
+        <a href="login.html" class="btn btn-danger">Sair</a>
+    </header>
+
+    <main class="container py-5">
+
+        <h1 class="text-center mb-4">Dashboard de Dados</h1>
+
+        <h2 class="text-center">Selecione uma categoria:</h2>
+        <div class="d-flex justify-content-center mb-4">
+            <button class="btn btn-primary mx-2" onclick="exibirDados('Doador')">Doadores</button>
+            <button class="btn btn-success mx-2" onclick="exibirDados('Coleta')">Coletas</button>
+            <button class="btn btn-warning mx-2" onclick="exibirDados('Comunidade')">Comunidade</button>
+            <button class="btn btn-info mx-2" onclick="exibirDados('Produtos')">Produtos</button>
+        </div>
+
+        <div class="input-group mb-3 w-50 mx-auto">
+            <input type="text" id="filtro" class="form-control" placeholder="Filtrar por palavra-chave" oninput="aplicarFiltro()">
+        </div>
+
+        <h2 class="text-center">Dados da Categoria</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover text-white" id="dataTable">
+                <thead class="table-dark">
+                    <tr id="tableHeaders">
+                    </tr>
+                </thead>
+                <tbody class="text-white">
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer class="text-center py-4 bg-dark text-white">
+        <p>App "Match do Bem", desenvolvido pela equipe Erivânia, Hemerson, Humberto e Isabel</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/3.4.3/parse.min.js"></script>
+    <script>
+
+        Parse.initialize('winm9cbnUUSt37DOLHgvXRBdSbRLRyv4RXW7WvvD', 'jcrjxZKfxwXXqldjxT9SIG1tPUil7O0YzlUc70Dd');
+        Parse.serverURL = "https://parseapi.back4app.com/";
+
+        let currentData = [];
+
+        window.onload = verificarAutenticacao;
+
+        function verificarAutenticacao() {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                alert("Você precisa estar logado para acessar esta página.");
+                window.location.href = "login.html";
+            }
+        }
+
+        async function exibirDados(classe) {
+            const ClassObject = Parse.Object.extend(classe);
+            const query = new Parse.Query(ClassObject);
+            try {
+                const results = await query.find();
+                currentData = results;
+                renderizarTabela(results);
+            } catch (error) {
+                console.error(`Erro ao buscar dados de ${classe}:`, error);
+                alert(`Erro ao buscar dados de ${classe}.`);
+            }
+        }
+
+        function renderizarTabela(results) {
+            const tableHeaders = document.getElementById("tableHeaders");
+            const tableBody = document.querySelector("#dataTable tbody");
+            tableHeaders.innerHTML = "";
+            tableBody.innerHTML = "";
+
+            if (results.length > 0) {
+                const firstObject = results[0];
+                for (let key in firstObject.attributes) {
+                    const headerCell = document.createElement('th');
+                    headerCell.textContent = key;
+                    tableHeaders.appendChild(headerCell);
+                }
+
+                const actionsHeader = document.createElement('th');
+                actionsHeader.textContent = "Ações";
+                tableHeaders.appendChild(actionsHeader);
+
+                results.forEach(object => {
+                    const row = tableBody.insertRow();
+
+                    for (let key in object.attributes) {
+                        const cell = row.insertCell();
+                        cell.textContent = object.get(key);
+                        cell.classList.add("text-white");
+                    }
+
+                    const actionsCell = row.insertCell();
+                    actionsCell.innerHTML = `
+                        <button class="btn btn-sm btn-primary" onclick="editarDado('${object.className}', '${object.id}')">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="excluirDado('${object.className}', '${object.id}')">Excluir</button>
+                    `;
+                });
+            } else {
+                alert("Nenhum dado encontrado.");
+            }
+        }
+    </script>
+</body>
+
+</html>
