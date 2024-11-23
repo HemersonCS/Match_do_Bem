@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produtos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .container {
+            background-image: url('img/produtos.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: var(--cor-de-fundo);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header d-flex justify-content-end p-3">
+        <a href="login.html" class="header__login btn btn-primary">Login</a>
+    </header>
+
+    <section class="container d-flex flex-column align-items-center justify-content-center text-center py-5" style="min-height: 100vh;">
+        <div class="container__caixa bg-dark bg-opacity-75 rounded-3 shadow-lg p-4" style="max-width: 700px; width: 100%;">
+            <h1 class="container__titulo">Cadastro de Produtos</h1>
+            <form id="productForm" onsubmit="criarProduto(event)" class="container__form text-start">
+
+                <div class="mb-3">
+                    <label for="productName" class="form-label">Nome do Produto:</label>
+                    <input type="text" id="productName" name="productName" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantidade:</label>
+                    <input type="number" id="quantity" name="quantity" class="form-control" required min="1">
+                </div>
+
+                <div class="mb-3">
+                    <label for="perishable" class="form-label">Perecível:</label>
+                    <select id="perishable" name="perishable" class="form-select" required>
+                        <option value="sim">Sim</option>
+                        <option value="nao">Não</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="expirationDate" class="form-label">Data de Validade:</label>
+                    <input type="date" id="expirationDate" name="expirationDate" class="form-control">
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">Cadastrar Produto</button>
+                    <button type="reset" class="btn btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer class="rodape text-center py-4">
+        <p>App "Match do Bem", desenvolvido pela equipe Erivânia, Hemerson, Humberto e Isabel</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script>
+
+        Parse.initialize('winm9cbnUUSt37DOLHgvXRBdSbRLRyv4RXW7WvvD', 'jcrjxZKfxwXXqldjxT9SIG1tPUil7O0YzlUc70Dd');
+        Parse.serverURL = "https://parseapi.back4app.com/";
+
+        function sanitizeInput(input) {
+            const element = document.createElement('div');
+            element.innerText = input;
+            return element.innerHTML.trim();
+        }
+
+        async function criarProduto(event) {
+            event.preventDefault();
+
+            const productName = sanitizeInput(document.getElementById("productName").value);
+            const quantity = parseInt(sanitizeInput(document.getElementById("quantity").value));
+            const perishable = sanitizeInput(document.getElementById("perishable").value);
+            const expirationDate = sanitizeInput(document.getElementById("expirationDate").value);
+
+            if (isNaN(quantity) || quantity <= 0) {
+                alert("A quantidade deve ser um número positivo.");
+                return;
+            }
+
+            let expirationDateObj = null;
+            if (expirationDate) {
+                expirationDateObj = new Date(expirationDate);
+                if (isNaN(expirationDateObj.getTime())) {
+                    alert("Data de validade inválida.");
+                    return;
+                }
+            }
+
+            try {
+                const Produto = Parse.Object.extend('Produtos');
+                const produto = new Produto();
+
+                produto.set('NomeProduto', productName);
+                produto.set('quantidade', quantity);
+                produto.set('perecivel', perishable === 'sim');
+                produto.set('dataValidade', expirationDateObj);
+
+                await produto.save();
+                alert("Produto cadastrado com sucesso!");
+                document.getElementById("productForm").reset();
+            } catch (error) {
+                console.error('Erro ao cadastrar produto:', error);
+                alert("Erro ao cadastrar produto.");
+            }
+        }
+    </script>
+</body>
+
+</html>
