@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gerenciamento de Doadores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            min-height: 100vh;
+            background-color: var(--cor-de-fundo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container__caixa {
+            max-width: 400px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .container__titulo {
+            color: var(--branco-principal);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .container__form input {
+            margin-bottom: 15px;
+        }
+
+        .btn-custom {
+            width: 100%;
+            padding: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <section class="container">
+        <div class="container__caixa">
+            <h1 class="container__titulo">Login</h1>
+            <form id="loginForm" class="container__form">
+    
+                <div class="mb-3">
+                    <label for="username" class="form-label text-white">Usuário</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Digite seu usuário" required>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="password" class="form-label text-white">Senha</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Digite sua senha" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-custom">Entrar</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="rodape text-center py-4">
+        <p>App "Match do Bem", desenvolvido pela equipe Erivânia, Hemerson, Humberto e Isabel</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/3.4.3/parse.min.js"></script>
+    <script>
+
+        Parse.initialize('winm9cbnUUSt37DOLHgvXRBdSbRLRyv4RXW7WvvD', 'jcrjxZKfxwXXqldjxT9SIG1tPUil7O0YzlUc70Dd');
+        Parse.serverURL = "https://parseapi.back4app.com/";
+
+        async function login(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            try {
+                const user = await Parse.User.logIn(username, password);
+                alert("Login bem-sucedido!");
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                console.error('Erro ao fazer login', error);
+                alert("Erro ao fazer login. Verifique seu usuário e senha.");
+            }
+        }
+
+        document.getElementById("loginForm").addEventListener("submit", login);
+    </script>
+</body>
+
+</html>
