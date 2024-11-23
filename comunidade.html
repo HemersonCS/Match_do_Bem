@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Comunidades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;700&display=swap" rel="stylesheet">
+   
+   <style>
+        .container {
+            background-image: url('img/comunidade.webp');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: var(--cor-de-fundo);
+        }
+    </style>
+</head>
+
+<body>
+   
+    <header class="header d-flex justify-content-end p-3">
+        <a href="login.html" class="header__login btn btn-primary">Login</a>
+    </header>
+
+    <section class="container d-flex flex-column align-items-center justify-content-center text-center py-5" style="min-height: 100vh;">
+        <div class="container__caixa bg-dark bg-opacity-75 rounded-3 shadow-lg p-4" style="max-width: 700px; width: 100%;">
+            <h1 class="container__titulo">Cadastro de Comunidades</h1>
+            <h2 class="container__subtitulo text-secondary mb-4">Complete suas informações</h2>
+
+            <form id="comunidadeForm" onsubmit="criarComunidade(event)" class="container__form text-start">
+                
+                <div class="mb-3">
+                    <label for="txtNomeComunidade" class="form-label"><strong>Nome da Comunidade</strong></label>
+                    <input type="text" id="txtNomeComunidade" name="nome" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="txtEnderecoComunidade" class="form-label"><strong>Endereço Completo</strong></label>
+                    <input type="text" id="txtEnderecoComunidade" name="endereco" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="txtEmailComunidade" class="form-label"><strong>Email da Comunidade</strong></label>
+                    <input type="email" id="txtEmailComunidade" name="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="txtCelularComunidade" class="form-label"><strong>Celular de Contato</strong></label>
+                    <input type="text" id="txtCelularComunidade" name="celular" class="form-control" required>
+                </div>
+
+                <button type="submit" id="btnSalvar" class="btn btn-success w-100">Salvar</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="rodape text-center py-4">
+        <p>App "Match do Bem", desenvolvido pela equipe Erivânia, Hemerson, Humberto e Isabel</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/3.4.3/parse.min.js"></script>
+    <script>
+
+        Parse.initialize('winm9cbnUUSt37DOLHgvXRBdSbRLRyv4RXW7WvvD', 'jcrjxZKfxwXXqldjxT9SIG1tPUil7O0YzlUc70Dd');
+        Parse.serverURL = "https://parseapi.back4app.com/";
+
+        function sanitizeInput(input) {
+            const element = document.createElement('div');
+            element.innerText = input;
+            return element.innerHTML;
+        }
+
+        async function criarComunidade(event) {
+            event.preventDefault();
+
+            const nome = sanitizeInput(document.getElementById("txtNomeComunidade").value.trim());
+            const endereco = sanitizeInput(document.getElementById("txtEnderecoComunidade").value.trim());
+            const email = sanitizeInput(document.getElementById("txtEmailComunidade").value.trim());
+            const celular = sanitizeInput(document.getElementById("txtCelularComunidade").value.trim());
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const celularPattern = /^\d+$/;
+
+            if (!emailPattern.test(email)) {
+                alert("Por favor, insira um email válido.");
+                return;
+            }
+
+            if (!celularPattern.test(celular)) {
+                alert("Por favor, insira um número de celular válido (apenas números).");
+                return;
+            }
+
+            try {
+                const Comunidade = Parse.Object.extend('Comunidade');
+                const comunidade = new Comunidade();
+
+                comunidade.set('nome', nome);
+                comunidade.set('endereco', endereco);
+                comunidade.set('email', email);
+                comunidade.set('celular', celular);
+
+                await comunidade.save();
+                alert("Comunidade cadastrada com sucesso!");
+                document.getElementById("comunidadeForm").reset();
+            } catch (error) {
+                console.error('Erro ao cadastrar comunidade:', error);
+                alert("Erro ao cadastrar comunidade.");
+            }
+        }
+    </script>
+</body>
+
+</html>
